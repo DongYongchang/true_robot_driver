@@ -1,0 +1,9 @@
+include(CMakeFindDependencyMacro)
+
+#all @variable - name @will be replaced by the value ${variable - name }
+
+#find all dependencies
+#find_dependency(spdlog REQUIRED HINTS ${CMAKE_INSTALL_PREFIX})
+
+#Add the targets file
+include("${CMAKE_CURRENT_LIST_DIR}/truerobot_state-targets.cmake")
