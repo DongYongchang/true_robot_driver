@@ -10,8 +10,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${PROJECT_DIR}/install/bin")
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CONFIGURATION_TYPES "Release")
 
-message(${CMAKE_PREFIX_PATH})
-
 
 add_definitions(-DCODEIT_1_3_0)
 add_definitions(-DCPP_RPC_LIB)
@@ -19,7 +17,7 @@ add_definitions(-DCPP_RPC_LIB)
 #find_package(truerobot REQUIRED PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../../install NO_DEFAULT_PATH)
 find_package(truerobot_state REQUIRED)
 find_package(truerobot_cmd REQUIRED)
-
+find_package(spdlog REQUIRED)
 
 # ===== SETUP EXECUTABLE =====
 
@@ -40,6 +38,9 @@ add_executable(${PROJECT_NAME} ${SRC_FILES} )
 target_link_libraries(${PROJECT_NAME}
 	truerobot_cmd
 	truerobot_state
+	fmt::fmt
+	spdlog
+	pthread
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE "CO_SINGLE_THREAD")

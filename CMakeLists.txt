@@ -9,6 +9,8 @@ set(CMAKE_CONFIGURATION_TYPES Release)
 set(CMAKE_CXX_STANDARD 17)
 add_definitions(-DCODEIT_1_3_0)
 
+find_package(spdlog REQUIRED)
+
 link_directories(${CMAKE_SOURCE_DIR}/lib/linux/Release)
 
 # Add source files
@@ -37,10 +39,27 @@ target_link_directories(${TrueRbotState}
 	${CMAKE_INSTALL_PREFIX}/lib
 )
 
-target_link_libraries(${TrueRbotState} ${CMAKE_SOURCE_DIR}/lib/linux/Release/libprotobuf.so)
-target_link_libraries(${TrueRbotState} ${CMAKE_SOURCE_DIR}/lib/linux/Release/libzmq.so)
-target_link_libraries(${TrueRbotState} ${CMAKE_SOURCE_DIR}/lib/linux/Release/libmessage.so)
-target_link_libraries(${TrueRbotState} pthread)
+
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "(x86_64|amd64|AMD64)")
+    message(STATUS "Target architecture: x86_64")
+    target_link_libraries(${TrueRbotState} ${CMAKE_SOURCE_DIR}/lib/x86/linux/Release/libprotobuf.so)
+	target_link_libraries(${TrueRbotState} ${CMAKE_SOURCE_DIR}/lib/x86/linux/Release/libzmq.so)
+	target_link_libraries(${TrueRbotState} ${CMAKE_SOURCE_DIR}/lib/x86/linux/Release/libmessage.so)
+	target_link_libraries(${TrueRbotState} pthread)
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "(aarch64|arm64|ARM64)")
+    message(STATUS "Target architecture: ARM64")
+    target_link_libraries(${TrueRbotState} ${CMAKE_SOURCE_DIR}/lib/arm/linux/Release/libprotobuf.so)
+	target_link_libraries(${TrueRbotState} ${CMAKE_SOURCE_DIR}/lib/arm/linux/Release/libzmq.so)
+	target_link_libraries(${TrueRbotState} ${CMAKE_SOURCE_DIR}/lib/arm/linux/Release/libmessage.so)
+	target_link_libraries(${TrueRbotState} pthread)
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "(arm|ARM)")
+    message(STATUS "Target architecture: ARM")
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "(i[3-6]86|x86)")
+    message(STATUS "Target architecture: x86")
+    set(ARCH_X86 TRUE)
+endif()
+
+target_link_libraries(${TrueRbotState} spdlog)
 
 
 # ===== LINK DEPENDENCIES ======
@@ -69,11 +88,29 @@ install(EXPORT "${TrueRbotState}-targets"
     )
 
 
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/lib/linux/Release/" 
-	DESTINATION "bin"
-	FILES_MATCHING 
-	PATTERN "*"
-)
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "(x86_64|amd64|AMD64)")
+    message(STATUS "Target architecture: x86_64")
+	install(DIRECTORY "${CMAKE_SOURCE_DIR}/lib/x86/linux/Release/" 
+		DESTINATION "bin"
+		FILES_MATCHING 
+		PATTERN "*"
+	)
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "(aarch64|arm64|ARM64)")
+    message(STATUS "Target architecture: ARM64")
+	install(DIRECTORY "${CMAKE_SOURCE_DIR}/lib/arm/linux/Release/" 
+		DESTINATION "bin"
+		FILES_MATCHING 
+		PATTERN "*"
+	)
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "(arm|ARM)")
+    message(STATUS "Target architecture: ARM")
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "(i[3-6]86|x86)")
+    message(STATUS "Target architecture: x86")
+    set(ARCH_X86 TRUE)
+endif()
+
+
+
 
 # copy the *.-config file to the CMAKE_INSTALL_PREFIX directory. This will specify the dependencies.
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${TrueRbotState}-config.cmake.in" 
@@ -95,9 +132,7 @@ set_target_properties(${TrueRbotState} PROPERTIES CXX_EXTENSIONS OFF)
 #target_compile_options(${PROJECT_NAME} PRIVATE -Werror)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-#######################################################################################################################3
-
-
+#######################################################################################################################
 set(TrueRbotoCmd "truerobot_cmd")
 
 set(CMAKE_CONFIGURATION_TYPES Release)
@@ -137,8 +172,22 @@ target_link_directories(${TrueRbotoCmd}
 	${CMAKE_INSTALL_PREFIX}/lib
 )
 
-target_link_libraries(${TrueRbotoCmd} ${CMAKE_SOURCE_DIR}/lib/linux/Release/libcpp_rpc.so)
-target_link_libraries(${TrueRbotoCmd} pthread)
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "(x86_64|amd64|AMD64)")
+    message(STATUS "Target architecture: x86_64")
+	target_link_libraries(${TrueRbotoCmd} ${CMAKE_SOURCE_DIR}/lib/x86/linux/Release/libcpp_rpc.so)
+	target_link_libraries(${TrueRbotoCmd} pthread)
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "(aarch64|arm64|ARM64)")
+    message(STATUS "Target architecture: ARM64")
+	target_link_libraries(${TrueRbotoCmd} ${CMAKE_SOURCE_DIR}/lib/arm/linux/Release/libcpp_rpc.so)
+	target_link_libraries(${TrueRbotoCmd} pthread)
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "(arm|ARM)")
+    message(STATUS "Target architecture: ARM")
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "(i[3-6]86|x86)")
+    message(STATUS "Target architecture: x86")
+    set(ARCH_X86 TRUE)
+endif()
+
+target_link_libraries(${TrueRbotoCmd} spdlog)
 
 
 # ===== LINK DEPENDENCIES ======
@@ -167,11 +216,31 @@ install(EXPORT "${TrueRbotoCmd}-targets"
     )
 
 
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/lib/linux/Release/" 
-	DESTINATION "bin"
-	FILES_MATCHING 
-	PATTERN "*"
-)
+
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "(x86_64|amd64|AMD64)")
+    message(STATUS "Target architecture: x86_64")
+	install(DIRECTORY "${CMAKE_SOURCE_DIR}/lib/x86/linux/Release/" 
+		DESTINATION "bin"
+		FILES_MATCHING 
+		PATTERN "*"
+	)
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "(aarch64|arm64|ARM64)")
+    message(STATUS "Target architecture: ARM64")
+	install(DIRECTORY "${CMAKE_SOURCE_DIR}/lib/arm/linux/Release/" 
+		DESTINATION "bin"
+		FILES_MATCHING 
+		PATTERN "*"
+	)
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "(arm|ARM)")
+    message(STATUS "Target architecture: ARM")
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "(i[3-6]86|x86)")
+    message(STATUS "Target architecture: x86")
+    set(ARCH_X86 TRUE)
+endif()
+
+
+
+
 
 # copy the *.-config file to the CMAKE_INSTALL_PREFIX directory. This will specify the dependencies.
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${TrueRbotoCmd}-config.cmake.in" 
