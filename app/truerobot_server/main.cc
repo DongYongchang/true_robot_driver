@@ -11,43 +11,189 @@
 
 using namespace arm_driver;
 
+void PrintDriverInfo()
+{
+    TrueArmDriver* driver = TrueArmDriver::GetInstance();
+
+    spdlog::info("Arm has error {}", driver->HasError());
+
+    /* Right joint postion */
+    auto right_joint_position = driver->GetRightJointPosition();
+    printf("right joint position : ");
+    for (int i = 0; i < right_joint_position.size(); i++) {
+        printf(" %3lf", right_joint_position[i]);
+    }
+    printf("\n");
+
+    /* Left joint postion */
+    auto left_joint_position = driver->GetLeftJointPosition();
+    printf("left joint position : ");
+    for (int i = 0; i < left_joint_position.size(); i++) {
+        printf(" %3lf", left_joint_position[i]);
+    }
+    printf("\n");
+
+    /* Right joint torque */
+    auto right_joint_torque = driver->GetRightJointTorque();
+    printf("right joint torque : ");
+    for (int i = 0; i < right_joint_torque.size(); i++) {
+        printf(" %3lf", right_joint_torque[i]);
+    }
+    printf("\n");
+
+    /* Left joint postion */
+    auto left_joint_torque = driver->GetLeftJointTroque();
+    printf("left joint torque : ");
+    for (int i = 0; i < left_joint_torque.size(); i++) {
+        printf(" %3lf", left_joint_torque[i]);
+    }
+    printf("\n");
+
+    /* Right tool force */
+    auto right_tool_force = driver->GetRightToolForce();
+    printf("right tool force : ");
+    for (int i = 0; i < right_tool_force.size(); i++) {
+        printf(" %3lf", right_tool_force[i]);
+    }
+    printf("\n");
+
+    /* Left tool force */
+    auto left_tool_force = driver->GetLeftToolForce();
+    printf("left tool force : ");
+    for (int i = 0; i < left_tool_force.size(); i++) {
+        printf(" %3lf", left_tool_force[i]);
+    }
+    printf("\n");
+}
+
+void SetArmPositinTest(int i, double joint_position, bool inv = true)
+{
+    {
+        TrueArmDriver* driver = TrueArmDriver::GetInstance();
+        std::vector pos = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+        pos[i] = joint_position;
+        driver->SetRightJointPosition(pos);
+        driver->SetLeftJointPosition(pos);
+        driver->MainLoop();
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    }
+
+    {
+        TrueArmDriver* driver = TrueArmDriver::GetInstance();
+        std::vector pos = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+        driver->SetRightJointPosition(pos);
+        driver->SetLeftJointPosition(pos);
+        driver->MainLoop();
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    }
+
+    if(inv != true)
+    {
+        return;
+    }
+
+    {
+
+        TrueArmDriver* driver = TrueArmDriver::GetInstance();
+        std::vector pos = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+        pos[i] = -joint_position;
+        driver->SetRightJointPosition(pos);
+        driver->SetLeftJointPosition(pos);
+        driver->MainLoop();
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    }
+
+    {
+
+        TrueArmDriver* driver = TrueArmDriver::GetInstance();
+        std::vector pos = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+        driver->SetRightJointPosition(pos);
+        driver->SetLeftJointPosition(pos);
+        driver->MainLoop();
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    }
+}
+
 int main()
 {
-
+    spdlog::set_level(spdlog::level::debug);
     spdlog::info("Hello, World!");
-
-    // Instead of creating instances:
-    // TrueArmDriver driver;  // Old way - no longer works
 
     // Use the singleton instance:
     TrueArmDriver* driver = TrueArmDriver::GetInstance();
 
-    // All other usage remains the same:
-    // driver.Init();
-    // driver.SendCommand(Command::Start);
-    // driver.MainLoop();
-    // State current_state = driver.GetState();
-
     driver->Init("");
 
-    driver->SendCommand(arm_driver::Command::Start);
+    PrintDriverInfo();
+
+    driver->SendCommand(Command::Init);
 
     while (1) {
         driver->MainLoop();
 
-        State current_state = driver->GetState();
-        spdlog::info("Current state: {}", static_cast<int>(current_state));
+        if (driver->GetState() == State::Init) {
 
-        auto position = driver->GetRightJointPosition();
-        printf("joint position : ");
-        for (int i = 0; i < position.size(); i++) {
-            //  spdlog::info("Joint {} position: {}", i, position[i]);
-            printf(" %lf\n", i, position[i]);
+            break;
         }
-        printf("\n");
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
+
+    PrintDriverInfo();
+
+    driver->SendCommand(Command::Start);
+
+    while (1) {
+        driver->MainLoop();
+
+        if (driver->GetState() == State::Run) {
+            break;
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    }
+
+    PrintDriverInfo();
+
+    int test_cnt = 0;
+    while (1) {
+        driver->MainLoop();
+#if 0
+        static bool flag = true;
+        if (flag == true) {
+             std::vector pos = {1.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+             driver->SetRightJointPosition(pos);
+             driver->SetLeftJointPosition(pos);
+            flag = false;
+        } else {
+             std::vector pos = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+             driver->SetRightJointPosition(pos);
+             driver->SetLeftJointPosition(pos);
+            flag = true;
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+#endif
+
+#if 1
+
+        SetArmPositinTest(0, 1.5);
+
+
+        SetArmPositinTest(1, 0.5);
+
+          SetArmPositinTest(2, 1.5);
+          SetArmPositinTest(3, 1.5, false);
+          SetArmPositinTest(4, 1.5);
+          SetArmPositinTest(5, -1.5, false);
+          SetArmPositinTest(6, 1.5);
+#endif
+        driver->MainLoop();
+
+        PrintDriverInfo();
+    }
+
+    driver->SendCommand(Command::Stop);
 
     driver->DeInit();
 

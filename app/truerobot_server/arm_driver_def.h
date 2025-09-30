@@ -1,6 +1,5 @@
 #pragma once
 
-namespace arm_driver {
 enum class State
 {
     None,
@@ -19,5 +18,3 @@ enum class Command
     Stop,
     Reset
 };
-
-} // namespace arm_driver
