@@ -182,11 +182,11 @@ int main()
 
         SetArmPositinTest(1, 0.5);
 
-          SetArmPositinTest(2, 1.5);
-          SetArmPositinTest(3, 1.5, false);
-          SetArmPositinTest(4, 1.5);
-          SetArmPositinTest(5, -1.5, false);
-          SetArmPositinTest(6, 1.5);
+        SetArmPositinTest(2, 1.5);
+        SetArmPositinTest(3, 1.5, false);
+        SetArmPositinTest(4, 1.5);
+        SetArmPositinTest(5, -1.5, false);
+        SetArmPositinTest(6, 1.5);
 #endif
         driver->MainLoop();
 

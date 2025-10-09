@@ -49,16 +49,26 @@ static void OnRTState(const system_rtstate::SystemRtState& msg)
         arm_driver->GetJointError()[i] = data.models_joints[i].error_code;
     }
 
+    for (int i = 0; i < arm_driver->GetLeftJointPosition().size(); i++) {
+        if(i == 0 || i == 2 || i == 4 || i == 6)
+        {
+            arm_driver->GetLeftJointPosition()[i] = -data.models_joints[i + 7].position;
+            arm_driver->GetLeftJointPosition()[i] = -data.models_joints[i + 7].torque;
+        }
+        else 
+        {
+            arm_driver->GetLeftJointPosition()[i] = data.models_joints[i + 7].position;
+            arm_driver->GetLeftJointPosition()[i] = data.models_joints[i + 7].torque;
+        }
+
+        arm_driver->GetJointError()[i] = data.models_joints[i + 7].error_code;
+    }
+
     for (int i = 0; i < 6; i++) {
         arm_driver->GetRightToolForce()[i] = data.controller.ftvalues[0][i];
         arm_driver->GetLeftToolForce()[i] = data.controller.ftvalues[1][i];
     }
 
-    for (int i = 0; i < arm_driver->GetLeftJointPosition().size(); i++) {
-        arm_driver->GetLeftJointPosition()[i] = data.models_joints[i + 7].position;
-        arm_driver->GetLeftJointPosition()[i] = data.models_joints[i + 7].torque;
-        arm_driver->GetJointError()[i] = data.models_joints[i + 7].error_code;
-    }
 }
 
 static void OnNoRTState(const system_nrtstate::SystemNrtState& msg)
@@ -303,6 +313,7 @@ bool TrueArmDriver::SetLeftJointPosition(
         return false;
     }
 
+
     if (target_left_joint_pos_.size() != joint_position.size()) {
         spdlog::warn("Taget left joint size({}) and joint position size({}) mismatch",
             target_left_joint_pos_.size(), joint_position.size());
@@ -310,6 +321,11 @@ bool TrueArmDriver::SetLeftJointPosition(
     }
 
     target_left_joint_pos_ = joint_position;
+
+    target_left_joint_pos_[0] = -target_left_joint_pos_[0];
+    target_left_joint_pos_[2] = -target_left_joint_pos_[2];
+    target_left_joint_pos_[4] = -target_left_joint_pos_[4];
+    target_left_joint_pos_[6] = -target_left_joint_pos_[6];
 
     left_joint_vel_gain_ = vel_gain;
     left_joint_acc_gain_ = acc_gain;
